@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { countries } from '../data/countries/names';
-	import { draw } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
 	import Autocomplete from '../lib/Autocomplete/Autocomplete.svelte';
-	import { onMount } from 'svelte';
+	import Propositions from '../lib/Propositions/Propositions.svelte';
+
 	type Answer = { country: string; distance: number; correct: boolean; direction?: string };
 
 	export let svg: string;
@@ -50,15 +49,8 @@
 	<div class="image">
 		{@html svg}
 	</div>
-	<ul class="answers">
-		{#each wrongAnswers as answer}
-			<li>
-				<span>{answer.country}</span>
-				<span>{answer.distance}m</span>
-				<span>{answer.direction}</span>
-			</li>
-		{/each}
-	</ul>
+
+	<Propositions answers={wrongAnswers} />
 
 	<form class="answer" action="/geotus" method="post" on:submit={handleSubmit}>
 		<Autocomplete countries={countriesName} bind:inputValue={answer} />
@@ -71,24 +63,11 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
+		height: 100%;
 	}
 
 	.image {
-		width: 30%;
-	}
-
-	.answers {
-		width: 300px;
-		display: flex;
-		list-style: none;
-		margin: 0;
-		padding: 2em;
-	}
-
-	.answers > li {
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
+		width: 500px;
 	}
 
 	.answer :global(.country-input) {
