@@ -1,16 +1,22 @@
 <script lang="ts">
 	import { countries } from '../data/countries/names';
 	import Autocomplete from '../lib/Autocomplete/Autocomplete.svelte';
+	import Checkmark from '../lib/Checkmark.svelte';
+	import { getCountryNameFromCode } from '../lib/country';
 	import Propositions from '../lib/Propositions/Propositions.svelte';
+	import type { DirectionEnum } from '../lib/Propositions/types';
+	import Score from '../lib/Score.svelte';
+	import type { Context } from './_stateMachine';
 
-	type Answer = { country: string; distance: number; correct: boolean; direction?: string };
+	type Answer = { country: string; distance: number; correct: boolean; direction?: DirectionEnum };
 
-	export let svg: string;
-	export let code: string;
+	export let context: Context;
 
 	const countriesName = countries.map((country) => country.name);
+
 	let answer: string = '';
 	let wrongAnswers: Array<Answer> = [];
+	let showCorrect = false;
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -18,7 +24,7 @@
 		const body = new FormData();
 
 		body.append('answer', countries.find((country) => country.name === answer).code);
-		body.append('code', code);
+		body.append('context', JSON.stringify(context));
 
 		const res = await fetch('', {
 			method: 'POST',
@@ -30,40 +36,69 @@
 
 		const data = await res.json();
 
-		wrongAnswers = [
-			...wrongAnswers,
-			{
-				country: answer,
-				distance: data.distance ?? 0,
-				correct: data.correct,
-				direction: data.direction
-			}
-		];
-
+		if (data.correct) {
+			wrongAnswers = [];
+			showCorrect = true;
+			setTimeout(() => (showCorrect = false), 500);
+		} else {
+			wrongAnswers = [
+				...wrongAnswers,
+				{
+					country: answer,
+					distance: data.distance ?? 0,
+					correct: data.correct,
+					direction: data.direction
+				}
+			];
+		}
+		context = data.context;
 		answer = '';
 	}
 </script>
 
-<div class="background" />
 <div class="container">
-	<div class="image">
-		{@html svg}
+	<div class="left">
+		<Score previous={context.previous} score={context.score} />
 	</div>
-
-	<Propositions answers={wrongAnswers} />
-
-	<form class="answer" action="/geotus" method="post" on:submit={handleSubmit}>
-		<Autocomplete countries={countriesName} bind:inputValue={answer} />
-	</form>
+	<div class="center">
+		<Checkmark show={showCorrect} />
+		<div class="image">
+			{@html context.country.svg}
+		</div>
+		<form class="answer" action="/geotus" method="post" on:submit={handleSubmit}>
+			<Autocomplete countries={countriesName} bind:inputValue={answer} />
+		</form>
+		<Propositions answers={wrongAnswers} />
+	</div>
+	<div class="right" />
 </div>
 
 <style>
 	.container {
 		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+	.container > div {
+		width: 33%;
+	}
+
+	.left {
+		max-height: 1000px;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		margin-top: 100px;
+	}
+
+	.center {
+		position: relative;
+		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		height: 100%;
 	}
 
 	.image {
@@ -72,21 +107,6 @@
 
 	.answer :global(.country-input) {
 		width: 100%;
-	}
-
-	.background {
-		opacity: 0.1;
-		filter: blur(3px);
-		z-index: -1;
-		left: 50%;
-		top: 50%;
-		transform: translate(-50%, -50%);
-		position: fixed;
-		height: 100%;
-		width: 100%;
-		background: url('/worldmap.svg');
-		background-position: center;
-		background-repeat: no-repeat;
 	}
 
 	:global(path) {

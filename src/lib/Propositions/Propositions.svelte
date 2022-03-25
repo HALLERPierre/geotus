@@ -1,11 +1,12 @@
 <script lang="ts">
 	import Proposition from './Proposition.svelte';
+	import type { DirectionEnum } from './types';
 
 	export let answers: Array<{
 		country: string;
 		distance: number;
 		correct: boolean;
-		direction?: string;
+		direction?: DirectionEnum;
 	}>;
 </script>
 
@@ -31,5 +32,6 @@
 		width: 100%;
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 </style>

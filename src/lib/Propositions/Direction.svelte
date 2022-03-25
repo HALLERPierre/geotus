@@ -1,30 +1,58 @@
 <script lang="ts">
-	export let direction: string;
+	import type { DirectionEnum } from './types';
 
-	const directionIcon = (() => {
+	export let direction: DirectionEnum | undefined;
+
+	const tick = 90;
+	const demiTick = 90 / 2;
+	const quartTick = demiTick / 2;
+
+	console.log({ direction });
+	const rotation = (() => {
 		switch (direction) {
 			case 'N':
-				return '↑';
+				return 0;
+			case 'NNE':
+				return quartTick;
 			case 'NE':
-				return '↗';
+				return demiTick;
+			case 'ENE':
+				return demiTick + quartTick;
 			case 'E':
-				return '↗';
-			case 'NE':
-				return '→';
+				return tick;
+			case 'ESE':
+				return tick + quartTick;
 			case 'SE':
-				return '↘';
+				return tick + demiTick;
+			case 'SSE':
+				return tick + demiTick + quartTick;
 			case 'S':
-				return '↓';
+				return 2 * tick;
+			case 'SSW':
+				return 2 * tick + quartTick;
 			case 'SW':
-				return '↙';
+				return 2 * tick + demiTick;
+			case 'WSW':
+				return 2 * tick + demiTick + quartTick;
 			case 'W':
-				return '←';
+				return 3 * tick;
+			case 'WNW':
+				return 3 * tick + quartTick;
 			case 'NW':
-				return '↖';
+				return 3 * tick + demiTick;
+			case 'NNW':
+				return 3 * tick + demiTick + quartTick;
 			default:
-				return '↭';
+				return 0;
 		}
 	})();
 </script>
 
-{directionIcon}
+<span class="direction" style="transform: rotate({rotation}deg);">↑</span>
+
+<style>
+	.direction {
+		margin: 0;
+		font-size: 24px;
+	}
+</style>
