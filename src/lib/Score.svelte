@@ -5,8 +5,8 @@
 	import { cubicOut } from 'svelte/easing';
 	import { afterUpdate } from 'svelte';
 
-	export let previous: Context['previous'];
-	export let score: Context['score'];
+	export let previous: Context['previous'] = [];
+	export let score: Context['score'] = 0;
 
 	const tweenedScore = tweened(score, {
 		duration: 300,

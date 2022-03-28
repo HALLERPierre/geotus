@@ -1,9 +1,9 @@
-import { countries } from '../data/countries/names';
+import { countries } from './_data/countries/names';
 import * as fs from 'fs';
 import path from 'path';
 import Crypto from 'crypto-js';
 import { fileURLToPath } from 'url';
-import { countriesCoords } from '../data/countries/coords';
+import { countriesCoords } from './_data/countries/coords';
 import * as geolib from 'geolib';
 
 function dirname() {
@@ -15,7 +15,7 @@ export function getRandomCountry() {
 	// const country = countries.find((country) => country.code === 'ES');
 	const svg = fs
 		.readFileSync(
-			path.resolve(`${dirname()}/../data/countries/images/${country.code.toLowerCase()}/vector.svg`)
+			path.resolve(`${dirname()}/_data/countries/images/${country.code.toLowerCase()}/vector.svg`)
 		)
 		.toString();
 	const countryCiphered = Crypto.AES.encrypt(country.code.toUpperCase(), 'very secret').toString();

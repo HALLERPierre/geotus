@@ -3,6 +3,7 @@ import * as Api from './_api';
 import { createPlayingMachine } from './_stateMachine';
 
 export const get: RequestHandler = async () => {
+	console.log(createPlayingMachine().context);
 	return {
 		status: 200,
 		body: { context: createPlayingMachine().context }

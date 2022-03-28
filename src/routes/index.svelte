@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { countries } from '../data/countries/names';
+	import { countries } from './_data/countries/names';
 	import Autocomplete from '../lib/Autocomplete/Autocomplete.svelte';
 	import Checkmark from '../lib/Checkmark.svelte';
-	import { getCountryNameFromCode } from '../lib/country';
 	import Propositions from '../lib/Propositions/Propositions.svelte';
 	import type { DirectionEnum } from '../lib/Propositions/types';
 	import Score from '../lib/Score.svelte';
@@ -10,7 +9,7 @@
 
 	type Answer = { country: string; distance: number; correct: boolean; direction?: DirectionEnum };
 
-	export let context: Context;
+	export let context: Context | null = null;
 
 	const countriesName = countries.map((country) => country.name);
 
@@ -58,12 +57,12 @@
 
 <div class="container">
 	<div class="left">
-		<Score previous={context.previous} score={context.score} />
+		<Score previous={context?.previous} score={context?.score} />
 	</div>
 	<div class="center">
 		<Checkmark show={showCorrect} />
 		<div class="image">
-			{@html context.country.svg}
+			{@html context?.country.svg}
 		</div>
 		<form class="answer" action="/geotus" method="post" on:submit={handleSubmit}>
 			<Autocomplete countries={countriesName} bind:inputValue={answer} />
