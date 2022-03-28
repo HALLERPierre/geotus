@@ -33,7 +33,6 @@ function isValidCountry(country: string): country is keyof typeof countriesCoord
 export function getDistanceAndDirection(answerCode: string, codeCiphered: string) {
 	const code = Crypto.AES.decrypt(codeCiphered, 'very secret').toString(Crypto.enc.Utf8);
 
-	console.log(code, answerCode);
 	if (!isValidCountry(answerCode) || !isValidCountry(code)) {
 		throw new Error('Invalid country');
 	}
