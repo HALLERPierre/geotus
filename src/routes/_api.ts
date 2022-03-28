@@ -1,31 +1,29 @@
-import { countries } from './_data/countries/names';
-import * as fs from 'fs';
-import path from 'path';
+import { countries } from '../lib/data/countries/names';
 import Crypto from 'crypto-js';
-import { fileURLToPath } from 'url';
-import { countriesCoords } from './_data/countries/coords';
+import { countriesCoords } from '../lib/data/countries/coords';
 import * as geolib from 'geolib';
-
-function dirname() {
-	return path.dirname(fileURLToPath(import.meta.url));
-}
 
 export function getRandomCountry() {
 	const country = countries[Math.floor(Math.random() * countries.length)];
-	// const country = countries.find((country) => country.code === 'ES');
-	const svg = fs
-		.readFileSync(
-			path.resolve(`${dirname()}/_data/countries/images/${country.code.toLowerCase()}/vector.svg`)
-		)
-		.toString();
 	const countryCiphered = Crypto.AES.encrypt(country.code.toUpperCase(), 'very secret').toString();
-	return { svg, code: countryCiphered };
+
+	return { code: countryCiphered };
 }
 
 export function checkAnswer(answer: string, codeCiphered: string) {
 	const code = Crypto.AES.decrypt(codeCiphered, 'very secret').toString(Crypto.enc.Utf8);
 
 	return code.toUpperCase() === answer.toUpperCase();
+}
+
+const enc = new TextDecoder('utf-8');
+
+export async function getSVG(origin: string, codeCiphered: string) {
+	const code = Crypto.AES.decrypt(codeCiphered, 'very secret').toString(Crypto.enc.Utf8);
+	const res = await fetch(`${origin}/images/${code.toLowerCase()}/vector.svg`);
+	const svg = await res.arrayBuffer();
+
+	return enc.decode(svg);
 }
 
 function isValidCountry(country: string): country is keyof typeof countriesCoords {

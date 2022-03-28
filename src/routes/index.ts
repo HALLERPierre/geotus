@@ -1,16 +1,23 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import * as Api from './_api';
-import { createPlayingMachine } from './_stateMachine';
+import { createPlayingMachine, type Context } from './_stateMachine';
 
-export const get: RequestHandler = async () => {
-	console.log(createPlayingMachine().context);
+export const get: RequestHandler = async ({ url }) => {
+	const context = createPlayingMachine().context;
+
 	return {
 		status: 200,
-		body: { context: createPlayingMachine().context }
+		body: { svg: await Api.getSVG(url.origin, context.country.code), context }
 	};
 };
 
-export const post: RequestHandler = async ({ request }) => {
+export type PostOutput = {
+	context: Context;
+	correct: boolean;
+	svg: string;
+};
+
+export const post: RequestHandler = async ({ request, url }) => {
 	const form = await request.formData();
 	const context = form.get('context') as string;
 
@@ -43,7 +50,8 @@ export const post: RequestHandler = async ({ request }) => {
 			status: 200,
 			body: {
 				context: newState.context,
-				correct: true
+				correct: true,
+				svg: await Api.getSVG(url.origin, newState.context.country.code)
 			}
 		};
 	}

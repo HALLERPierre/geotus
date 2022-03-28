@@ -4,7 +4,7 @@ import { getRandomCountry } from './_api';
 export type Context = {
 	score: number;
 	tries: number;
-	country: { svg: string; code: string };
+	country: { code: string };
 	correct: number;
 	previous: Array<{ countryName: string; guesses: number }>;
 };
