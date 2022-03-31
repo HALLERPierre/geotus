@@ -7,15 +7,11 @@
 	let filteredCountries: string[] = [];
 
 	const filterCountries = () => {
-		let storageArr = [];
 		if (inputValue) {
-			countries.forEach((country) => {
-				if (country.toLowerCase().startsWith(inputValue.toLowerCase())) {
-					storageArr = [...storageArr, makeMatchBold(country)];
-				}
-			});
+			filteredCountries = countries
+				.filter((country) => country.toLowerCase().startsWith(inputValue.toLowerCase()))
+				.slice(0, 5);
 		}
-		filteredCountries = storageArr;
 	};
 
 	$: if (!inputValue) {
@@ -47,15 +43,18 @@
 	let hiLiteIndex = null;
 
 	const navigateList = (e: KeyboardEvent) => {
-		if (e.key === 'ArrowDown' && hiLiteIndex <= filteredCountries.length - 1) {
-			hiLiteIndex === null ? (hiLiteIndex = 0) : (hiLiteIndex += 1);
-		} else if (e.key === 'ArrowUp' && hiLiteIndex !== null) {
+		if (e.key === 'ArrowUp') {
+			if (hiLiteIndex === null || hiLiteIndex === filteredCountries.length - 1) {
+				hiLiteIndex = 0;
+				return;
+			}
+			hiLiteIndex += 1;
+		}
+		if (e.key === 'ArrowDown' && hiLiteIndex !== null) {
 			hiLiteIndex === 0 ? (hiLiteIndex = filteredCountries.length - 1) : (hiLiteIndex -= 1);
 		} else if (e.key === 'Enter' && hiLiteIndex !== null) {
 			e.preventDefault();
 			setInputVal(filteredCountries[hiLiteIndex]);
-		} else {
-			return;
 		}
 	};
 </script>
@@ -77,6 +76,7 @@
 				<Country
 					itemLabel={country}
 					highlighted={i === hiLiteIndex}
+					position={i}
 					on:click={() => setInputVal(country)}
 				/>
 			{/each}
@@ -86,7 +86,6 @@
 
 <style>
 	div.autocomplete {
-		/*the container must be positioned relative:*/
 		display: inline-block;
 		width: 300px;
 	}
@@ -109,7 +108,6 @@
 		padding: 0;
 		top: 0;
 		width: 300px;
-		border: 1px solid #ddd;
 		background-color: #ddd;
 	}
 </style>

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Context } from '../routes/_stateMachine';
-	import { getCountryNameFromCode } from './country';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { afterUpdate } from 'svelte';
@@ -26,7 +25,11 @@
 <ul>
 	{#each previous as guess}
 		<li>
-			{getCountryNameFromCode(guess.countryName)} in {guess.guesses} guesses
+			{#if guess.skip}
+				Skipped {guess.countryName}
+			{:else}
+				{guess.countryName} in {guess.guesses} guesses
+			{/if}
 		</li>
 	{/each}
 </ul>

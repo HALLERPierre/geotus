@@ -17,34 +17,57 @@ export type PostOutput = {
 	svg: string;
 };
 
-export const post: RequestHandler = async ({ request, url }) => {
-	const form = await request.formData();
-	const context = form.get('context') as string;
+const assertIsNotFile = (value: string | null | File): string | null => {
+	if (typeof value === 'string') {
+		return value;
+	}
+	if (value === null) {
+		return null;
+	}
+	throw new Error('Unexpected File');
+};
 
-	if (context === undefined) {
+const parseFormData = async (request: Request) => {
+	const form = await request.formData();
+
+	return {
+		context: assertIsNotFile(form.get('context')),
+		skip: assertIsNotFile(form.get('skip')),
+		answer: assertIsNotFile(form.get('answer'))
+	};
+};
+
+export const post: RequestHandler = async ({ request, url }) => {
+	const { context, skip, answer } = await parseFormData(request);
+
+	if (context === null) {
 		throw new Error('No game');
 	}
 
 	const state = createPlayingMachine().withContext(JSON.parse(context));
 
-	// const skip = form.get('skip');
+	if (skip !== null) {
+		const newState = state.transition('playing', {
+			type: 'SKIP',
+			answer: Api.getAnswer(state.context.country.code)
+		});
+		return {
+			status: 200,
+			body: {
+				context: newState.context,
+				correct: false,
+				svg: await Api.getSVG(url.origin, newState.context.country.code)
+			}
+		};
+	}
 
-	// if (skip !== undefined) {
-	// 	const newState = state.transition('playing', { type: 'SKIP' });
-	// 	return {
-	// 		status: 200,
-	// 		body: {
-	// 			context: newState.context,
-	// 			correct: true
-	// 		}
-	// 	};
-	// }
-
-	const answer = form.get('answer') as string;
 	const isCorrect = Api.checkAnswer(answer, state.context.country.code);
 
 	if (isCorrect) {
-		const newState = state.transition('playing', { type: 'CORRECT', answer });
+		const newState = state.transition('playing', {
+			type: 'CORRECT',
+			answer: Api.getAnswer(state.context.country.code)
+		});
 
 		return {
 			status: 200,

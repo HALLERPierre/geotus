@@ -6,7 +6,7 @@ export type Context = {
 	tries: number;
 	country: { code: string };
 	correct: number;
-	previous: Array<{ countryName: string; guesses: number }>;
+	previous: Array<{ countryName: string; guesses: number; skip?: boolean }>;
 };
 
 export const createPlayingMachine = () =>
@@ -37,9 +37,7 @@ export const createPlayingMachine = () =>
 							}),
 							assign({
 								score: (context) => {
-									return (
-										context.score + (100 - context.tries * 10 > 10 ? 100 - context.tries * 10 : 10)
-									);
+									return context.score + 100;
 								}
 							}),
 							assign({
@@ -51,15 +49,24 @@ export const createPlayingMachine = () =>
 					FAIL: {
 						target: 'playing',
 						actions: assign({
-							tries: (context) => context.tries + 1
+							tries: (context) => context.tries + 1,
+							score: (context) => {
+								return context.score - 10;
+							}
 						})
 					},
 					SKIP: {
 						target: 'playing',
 						actions: assign({
 							tries: (_context) => 0,
+							previous: (context, event) => {
+								return [
+									...context.previous,
+									{ countryName: event.answer, guesses: context.tries, skip: true }
+								];
+							},
 							country: (_context) => getRandomCountry(),
-							score: (context) => context.score - 10
+							score: (context) => context.score - 30
 						})
 					}
 				}

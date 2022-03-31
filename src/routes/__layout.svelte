@@ -7,13 +7,5 @@
 	<title>Geotus</title>
 </svelte:head>
 
-<main>
-	<Background />
-	<slot />
-</main>
-
-<style>
-	main {
-		padding: 1rem;
-	}
-</style>
+<Background />
+<slot />

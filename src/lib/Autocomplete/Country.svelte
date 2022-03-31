@@ -1,24 +1,31 @@
 <script lang="ts">
-	export let itemLabel;
-	export let highlighted;
+	export let itemLabel: string;
+	export let highlighted: boolean;
+	export let position: number;
 </script>
 
-<li class="autocomplete-items" class:autocomplete-active={highlighted} on:click>
+<li
+	class="autocomplete-items"
+	class:autocomplete-active={highlighted}
+	on:click
+	style="bottom: {position * 40 + 40}px"
+>
 	{@html itemLabel}
 </li>
 
 <style>
 	li.autocomplete-items {
+		position: absolute;
 		list-style: none;
 		border-bottom: 1px solid #d4d4d4;
 		z-index: 99;
-		/*position the autocomplete items to be the same width as the container:*/
-		top: 100%;
 		left: 0;
 		right: 0;
 		padding: 10px;
 		cursor: pointer;
 		background-color: #fff;
+		height: 40px;
+		box-sizing: border-box;
 	}
 
 	li.autocomplete-items:hover {
